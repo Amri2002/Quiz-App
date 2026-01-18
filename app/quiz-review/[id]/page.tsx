@@ -53,7 +53,7 @@ export default function QuizReviewPage({ params }: { params: { id: string } }) {
   const score = 66 // 2 out of 3 questions correct
 
   return (
-    <DashboardLayout title="Quiz Review" subtitle="Review your answers and feedback">
+    <DashboardLayout title="Quiz Review" subtitle="Review your answers and feedback" role="student">
       {/* Score Summary */}
       <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5">
         <CardContent className="pt-8">

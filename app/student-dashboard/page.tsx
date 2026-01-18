@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/dashboard-layout'
 import { Button } from '@/components/ui/button'
@@ -58,11 +60,25 @@ const studentQuizzes: Quiz[] = [
 ]
 
 export default function StudentDashboard() {
+  const router = useRouter()
   const completedQuizzes = studentQuizzes.filter(q => q.completed).length
   const totalScore = studentQuizzes.filter(q => q.completed).reduce((sum, q) => sum + (q.score || 0), 0) / completedQuizzes || 0
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user')
+    if (!storedUser) {
+      router.push('/login')
+      return
+    }
+    
+    const userData = JSON.parse(storedUser)
+    if (userData.userType === 'teacher') {
+      router.push('/dashboard')
+    }
+  }, [router])
+
   return (
-    <DashboardLayout title="My Quizzes" subtitle="Take quizzes assigned by your teachers">
+    <DashboardLayout title="My Quizzes" subtitle="Take quizzes assigned by your teachers" role="student">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card>

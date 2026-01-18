@@ -35,7 +35,16 @@ export default function TeacherDashboard() {
       router.push('/login')
       return
     }
-    setUser(JSON.parse(storedUser))
+    
+    const userData = JSON.parse(storedUser)
+    
+    // Redirect students to their dashboard
+    if (userData.userType === 'student') {
+      router.push('/student-dashboard')
+      return
+    }
+    
+    setUser(userData)
     setIsLoading(false)
   }, [router])
 

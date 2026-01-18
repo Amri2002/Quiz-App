@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, Users, BookOpen, MoreVertical, Copy, Check } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -52,8 +53,22 @@ const mockClasses = [
 ]
 
 export default function ClassesPage() {
+  const router = useRouter()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user')
+    if (!storedUser) {
+      router.push('/login')
+      return
+    }
+    
+    const userData = JSON.parse(storedUser)
+    if (userData.userType === 'student') {
+      router.push('/student-dashboard')
+    }
+  }, [router])
 
   const copyJoinCode = (code: string) => {
     navigator.clipboard.writeText(code)

@@ -29,15 +29,19 @@ export default function LoginPage() {
       return
     }
 
-    // Check demo credentials
-    if (email === 'demo@quiz.com' && password === 'demo123') {
+    // Check demo credentials for teacher and student
+    if (email === 'teacher@quiz.com' && password === 'teacher123') {
       setTimeout(() => {
-        const userType = localStorage.getItem('signupType') || 'teacher'
-        localStorage.setItem('user', JSON.stringify({ email, name: 'Demo User', userType }))
-        router.push(userType === 'teacher' ? '/dashboard' : '/student-dashboard')
+        localStorage.setItem('user', JSON.stringify({ email, name: 'Demo Teacher', userType: 'teacher' }))
+        router.push('/dashboard')
+      }, 500)
+    } else if (email === 'student@quiz.com' && password === 'student123') {
+      setTimeout(() => {
+        localStorage.setItem('user', JSON.stringify({ email, name: 'Demo Student', userType: 'student' }))
+        router.push('/student-dashboard')
       }, 500)
     } else {
-      setError('Invalid credentials. Use demo@quiz.com / demo123')
+      setError('Invalid credentials. Use teacher@quiz.com or student@quiz.com')
       setIsLoading(false)
     }
   }
@@ -103,10 +107,22 @@ export default function LoginPage() {
 
           {/* Test Credentials */}
           <div className="mt-8 p-4 bg-primary/10 rounded-lg border border-primary/20">
-            <p className="text-xs font-semibold text-foreground mb-2">Demo Credentials:</p>
-            <div className="space-y-1 text-xs text-foreground/70">
-              <p><span className="font-semibold">Email:</span> demo@quiz.com</p>
-              <p><span className="font-semibold">Password:</span> demo123</p>
+            <p className="text-xs font-semibold text-foreground mb-3">Demo Credentials:</p>
+            <div className="space-y-3 text-xs">
+              <div>
+                <p className="font-semibold text-foreground mb-1">Teacher Account:</p>
+                <div className="space-y-0.5 text-foreground/70 ml-2">
+                  <p><span className="font-semibold">Email:</span> teacher@quiz.com</p>
+                  <p><span className="font-semibold">Password:</span> teacher123</p>
+                </div>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground mb-1">Student Account:</p>
+                <div className="space-y-0.5 text-foreground/70 ml-2">
+                  <p><span className="font-semibold">Email:</span> student@quiz.com</p>
+                  <p><span className="font-semibold">Password:</span> student123</p>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
