@@ -4,15 +4,12 @@ import { User, Bell, Shield, Palette, Database } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import DashboardLayout from '@/components/dashboard-layout'
 
 export default function SettingsPage() {
   return (
-    <div className="p-8 space-y-8 max-w-4xl mx-auto">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-1">Manage your account and preferences</p>
-      </div>
+    <DashboardLayout title="Settings" subtitle="Manage your account and preferences">
+      <div className="space-y-8 max-w-4xl">
 
       {/* Profile Settings */}
       <Card>
@@ -108,6 +105,7 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }
