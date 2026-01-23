@@ -26,7 +26,9 @@ export function JoinClassModal({ open, onOpenChange, onClassJoined }: JoinClassM
     setSuccess(false)
     
     try {
-      await classesApi.joinClass(joinCode.trim())
+      // Remove dashes and spaces before sending to API
+      const cleanCode = joinCode.replace(/[-\s]/g, '').trim()
+      await classesApi.joinClass(cleanCode)
       setSuccess(true)
       
       // Wait a moment to show success, then close and refresh

@@ -179,3 +179,53 @@ export const classesApi = {
     return apiClient.delete(`/api/classes/${classId}`)
   },
 }
+
+// Study Material types
+export interface StudyMaterial {
+  id: number
+  class_id: number
+  title: string
+  description: string | null
+  file_url: string
+  file_type: string | null
+  file_size: number | null
+  uploaded_by: number
+  uploader_name: string | null
+  created_at: string
+}
+
+// Materials API
+export const materialsApi = {
+  async uploadMaterial(classId: number, file: File, title: string, description?: string) {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('title', title)
+    if (description) {
+      formData.append('description', description)
+    }
+
+    const token = apiClient['token']
+    const response = await fetch(`${API_BASE_URL}/api/materials/upload/${classId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
+      throw new Error(error.detail || 'Upload failed')
+    }
+
+    return response.json()
+  },
+
+  async getClassMaterials(classId: number): Promise<StudyMaterial[]> {
+    return apiClient.get(`/api/materials/class/${classId}`)
+  },
+
+  async deleteMaterial(materialId: number) {
+    return apiClient.delete(`/api/materials/${materialId}`)
+  },
+}

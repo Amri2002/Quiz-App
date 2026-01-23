@@ -7,7 +7,7 @@ import DashboardLayout from '@/components/dashboard-layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Play, Clock, CheckCircle } from 'lucide-react'
+import { Play, Clock, CheckCircle, Plus } from 'lucide-react'
 
 interface Quiz {
   id: string
@@ -79,6 +79,14 @@ export default function StudentDashboard() {
 
   return (
     <DashboardLayout title="My Quizzes" subtitle="Take quizzes assigned by your teachers" role="student">
+      {/* Quick Actions */}
+      <div className="mb-6 flex justify-end">
+        <Button onClick={() => router.push('/join-class')}>
+          <Plus className="w-4 h-4 mr-2" />
+          Join a Class
+        </Button>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card>

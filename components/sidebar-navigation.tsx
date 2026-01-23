@@ -26,8 +26,8 @@ export default function SidebarNavigation({ role = 'teacher' }: SidebarProps) {
     { label: 'Settings', href: '/settings', icon: Settings },
   ] : [
     { label: 'Dashboard', href: '/student-dashboard', icon: LayoutDashboard },
-    { label: 'My Quizzes', href: '/student-quiz', icon: BookOpen },
-    { label: 'Library', href: '/library', icon: Library },
+    { label: 'My Classes', href: '/classes', icon: BookOpen },
+    { label: 'My Quizzes', href: '/student-quiz', icon: Library },
     { label: 'Reports', href: '/reports', icon: BarChart3 },
     { label: 'Settings', href: '/settings', icon: Settings },
   ]

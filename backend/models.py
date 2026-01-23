@@ -60,3 +60,21 @@ class Enrollment(Base):
     __table_args__ = (
         UniqueConstraint('student_id', 'class_id', name='uq_student_class_enrollment'),
     )
+
+
+class StudyMaterial(Base):
+    __tablename__ = "study_materials"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    class_id = Column(Integer, ForeignKey("classes.id"), nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    file_url = Column(String, nullable=False)
+    file_type = Column(String, nullable=True)  # pdf, doc, ppt, etc.
+    file_size = Column(Integer, nullable=True)  # in bytes
+    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    classroom = relationship("Class")
+    uploader = relationship("User")

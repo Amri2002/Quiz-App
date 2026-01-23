@@ -100,3 +100,28 @@ class EnrollmentResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+# Study Material Schemas
+class StudyMaterialCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    description: Optional[str] = None
+    file_url: str
+    file_type: Optional[str] = None
+    file_size: Optional[int] = None
+
+
+class StudyMaterialResponse(BaseModel):
+    id: int
+    class_id: int
+    title: str
+    description: Optional[str]
+    file_url: str
+    file_type: Optional[str]
+    file_size: Optional[int]
+    uploaded_by: int
+    uploader_name: Optional[str] = None
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
