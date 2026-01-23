@@ -124,3 +124,58 @@ export interface LoginResponse {
   access_token: string
   token_type: string
 }
+
+// Class types
+export interface ClassData {
+  id: number
+  name: string
+  description: string | null
+  join_code: string
+  teacher_id: number
+  is_archived: boolean
+  created_at: string
+  student_count?: number
+}
+
+export interface StudentInClass {
+  id: number
+  username: string
+  full_name: string | null
+  email: string
+  enrolled_at: string
+}
+
+export interface ClassDetail extends ClassData {
+  students: StudentInClass[]
+}
+
+// Classes API
+export const classesApi = {
+  async createClass(data: { name: string; description?: string }) {
+    return apiClient.post('/api/classes/', data)
+  },
+
+  async getMyClasses(includeArchived: boolean = false) {
+    return apiClient.get(`/api/classes/my-classes?include_archived=${includeArchived}`)
+  },
+
+  async getClassDetails(classId: number): Promise<ClassDetail> {
+    return apiClient.get(`/api/classes/${classId}`)
+  },
+
+  async joinClass(joinCode: string) {
+    return apiClient.post('/api/classes/join', { join_code: joinCode })
+  },
+
+  async updateClass(classId: number, data: { name?: string; description?: string; is_archived?: boolean }) {
+    return apiClient.patch(`/api/classes/${classId}`, data)
+  },
+
+  async removeStudent(classId: number, studentId: number) {
+    return apiClient.delete(`/api/classes/${classId}/students/${studentId}`)
+  },
+
+  async deleteClass(classId: number) {
+    return apiClient.delete(`/api/classes/${classId}`)
+  },
+}
