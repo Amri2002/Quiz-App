@@ -379,6 +379,9 @@ async def delete_class(
     Delete a class permanently (Teacher only).
     Note: Consider archiving instead for data preservation.
     """
+    import os
+    from models import StudyMaterial
+    
     # Verify class exists and belongs to teacher
     cls = db.query(Class).filter(
         Class.id == class_id,
@@ -391,7 +394,18 @@ async def delete_class(
             detail="Class not found or you don't have permission"
         )
     
-    # Delete the class (cascade will delete enrollments)
+    # Delete associated study material files from filesystem
+    materials = db.query(StudyMaterial).filter(StudyMaterial.class_id == class_id).all()
+    for material in materials:
+        file_path = os.path.join(".", material.file_url.lstrip('/'))
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                # Log error but continue with deletion
+                print(f"Failed to delete file {file_path}: {e}")
+    
+    # Delete the class (cascade will delete enrollments and materials)
     db.delete(cls)
     db.commit()
     

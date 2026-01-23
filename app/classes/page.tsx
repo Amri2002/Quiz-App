@@ -9,20 +9,34 @@ import { Badge } from '@/components/ui/badge'
 import { CreateClassModal } from '@/components/classes/create-class-modal'
 import DashboardLayout from '@/components/dashboard-layout'
 import { classesApi, ClassData } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 export default function ClassesPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [classes, setClasses] = useState<ClassData[]>([])
   const [loading, setLoading] = useState(true)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [classToDelete, setClassToDelete] = useState<{ id: number; name: string } | null>(null)
 
   useEffect(() => {
     // Get user from localStorage
@@ -49,6 +63,10 @@ export default function ClassesPage() {
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
     setCopiedCode(code)
+    toast({
+      title: 'Join code copied!',
+      description: `Code ${code} copied to clipboard`,
+    })
     setTimeout(() => setCopiedCode(null), 2000)
   }
 
@@ -56,21 +74,48 @@ export default function ClassesPage() {
     try {
       await classesApi.updateClass(classId, { is_archived: true })
       fetchClasses()
+      toast({
+        title: 'Class archived',
+        description: 'The class has been archived successfully',
+      })
     } catch (error) {
       console.error('Failed to archive class:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to archive class',
+        variant: 'destructive',
+      })
     }
   }
 
-  const handleDeleteClass = async (classId: number) => {
-    if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
-      return
-    }
+  const openDeleteDialog = (classId: number, className: string) => {
+    setClassToDelete({ id: classId, name: className })
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteClass = async () => {
+    if (!classToDelete) return
     
     try {
-      await classesApi.deleteClass(classId)
+      await classesApi.deleteClass(classToDelete.id)
+      // Immediately update local state to reflect the deletion
+      setClasses(classes.filter(c => c.id !== classToDelete.id))
+      // Also refresh from server to ensure consistency
       fetchClasses()
+      toast({
+        title: 'Class deleted',
+        description: 'The class has been permanently deleted',
+      })
     } catch (error) {
       console.error('Failed to delete class:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to delete class',
+        variant: 'destructive',
+      })
+    } finally {
+      setDeleteDialogOpen(false)
+      setClassToDelete(null)
     }
   }
 
@@ -150,7 +195,7 @@ export default function ClassesPage() {
                           <DropdownMenuItem 
                             onClick={(e) => {
                               e.stopPropagation()
-                              handleDeleteClass(classItem.id)
+                              openDeleteDialog(classItem.id, classItem.name)
                             }}
                             className="text-destructive"
                           >
@@ -234,6 +279,28 @@ export default function ClassesPage() {
         onOpenChange={setIsCreateModalOpen}
         onClassCreated={fetchClasses}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Class</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{classToDelete?.name}</strong>? 
+              This will permanently delete the class, all study materials, and remove all enrolled students. 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteClass}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   )
 }
