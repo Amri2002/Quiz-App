@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BookOpen, Users } from 'lucide-react'
+import { authApi } from '@/lib/api'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -17,6 +18,7 @@ export default function SignupPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    username: '',
     password: '',
     confirmPassword: '',
   })
@@ -36,7 +38,7 @@ export default function SignupPage() {
     setIsLoading(true)
 
     // Validation
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.name || !formData.email || !formData.username || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all fields')
       setIsLoading(false)
       return
@@ -48,22 +50,41 @@ export default function SignupPage() {
       return
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters')
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters')
       setIsLoading(false)
       return
     }
 
-    // Simulate signup (in production, this would hit an API)
-    setTimeout(() => {
-      // Store user info in localStorage for demo
-      localStorage.setItem('user', JSON.stringify({ 
-        email: formData.email, 
-        name: formData.name,
-        userType: userType 
+    try {
+      // Register with backend API
+      await authApi.signup({
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        full_name: formData.name,
+        is_teacher: userType === 'teacher'
+      })
+
+      // Auto-login after signup
+      const loginResponse = await authApi.login(formData.email, formData.password)
+      const user = await authApi.getCurrentUser()
+
+      // Store user data
+      localStorage.setItem('user', JSON.stringify({
+        email: user.email,
+        name: user.full_name || user.username,
+        userType: user.is_teacher ? 'teacher' : 'student',
+        id: user.id,
+        username: user.username
       }))
-      router.push(userType === 'teacher' ? '/dashboard' : '/student-dashboard')
-    }, 500)
+
+      // Redirect based on user type
+      router.push(user.is_teacher ? '/dashboard' : '/student-dashboard')
+    } catch (err: any) {
+      setError(err.message || 'Signup failed. Please try again.')
+      setIsLoading(false)
+    }
   }
 
   if (!userType) {
@@ -161,8 +182,23 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="username" className="text-foreground">
+                Username
+              </Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="johndoe123"
+                value={formData.username}
+                onChange={handleChange}
+                className="border-border"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="password" className="text-foreground">
-                Password
+                Password (min 8 characters)
               </Label>
               <Input
                 id="password"

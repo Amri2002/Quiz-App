@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { authApi } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -29,19 +30,30 @@ export default function LoginPage() {
       return
     }
 
-    // Check demo credentials for teacher and student
-    if (email === 'teacher@quiz.com' && password === 'teacher123') {
-      setTimeout(() => {
-        localStorage.setItem('user', JSON.stringify({ email, name: 'Demo Teacher', userType: 'teacher' }))
+    try {
+      // Login with backend API
+      const loginResponse = await authApi.login(email, password)
+      
+      // Get user details
+      const user = await authApi.getCurrentUser()
+      
+      // Store user data
+      localStorage.setItem('user', JSON.stringify({
+        email: user.email,
+        name: user.full_name || user.username,
+        userType: user.is_teacher ? 'teacher' : 'student',
+        id: user.id,
+        username: user.username
+      }))
+      
+      // Redirect based on user type
+      if (user.is_teacher) {
         router.push('/dashboard')
-      }, 500)
-    } else if (email === 'student@quiz.com' && password === 'student123') {
-      setTimeout(() => {
-        localStorage.setItem('user', JSON.stringify({ email, name: 'Demo Student', userType: 'student' }))
+      } else {
         router.push('/student-dashboard')
-      }, 500)
-    } else {
-      setError('Invalid credentials. Use teacher@quiz.com or student@quiz.com')
+      }
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please check your credentials.')
       setIsLoading(false)
     }
   }
